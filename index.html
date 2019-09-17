@@ -348,6 +348,150 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/28/越狱记录/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/28/越狱记录/" itemprop="url">越狱笔记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-28T11:17:39+08:00">
+                2018-02-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="重新越狱需要安装的东西"><a href="#重新越狱需要安装的东西" class="headerlink" title="重新越狱需要安装的东西"></a>重新越狱需要安装的东西</h1><ol>
+<li>Saigon 重新越狱 重启</li>
+<li>Cydia 下载</li>
+</ol>
+<h1 id="USB连接"><a href="#USB连接" class="headerlink" title="USB连接"></a>USB连接</h1><ol>
+<li>cd USBSSH/usbmuxd-1.0.8/python-client</li>
+<li>python tcprelay.py -t 22:2222    //把本地2222端口转发到iOS的22端口</li>
+<li>ssh root@localhost -p 2222  // ssh 到 iOS中</li>
+</ol>
+<h1 id="进入cycript"><a href="#进入cycript" class="headerlink" title="进入cycript"></a>进入cycript</h1><p> ps -e | grep Youkui4Phone.app<br> cycript -p 1055</p>
+<h1 id="cycript-语言"><a href="#cycript-语言" class="headerlink" title="cycript 语言"></a>cycript 语言</h1><p> rootViewController = [UIApp keyWindow].rootViewController<br> rootViewController.viewControllers<br> [#0x120a40000 nextResponder]<br> [[UIApp keyWindow] recursiveDescription].toString() </p>
+<h1 id="启动LLDB"><a href="#启动LLDB" class="headerlink" title="启动LLDB"></a>启动LLDB</h1><ol>
+<li>USB连接 </li>
+<li>debugsever 附加到对应的应用 debugserver *:1234 -a “应用名” 例如：debugserver *:1234 -a “MobileNotes”</li>
+<li>把本地1234端口转发到iOS 1234端口 python tcprelay.py -t 1234:1234</li>
+<li>用lldb开始调试<br>/Applications/Xcode.app/Contents/Developer/usr/bin/lldb<br>process connect connect://localhost:1234</li>
+</ol>
+<h1 id="方法断点内存地址"><a href="#方法断点内存地址" class="headerlink" title="方法断点内存地址"></a>方法断点内存地址</h1><p>根据IDA获取 方法基址 以及模块基址<br>根据LLDB获取模块偏移值 指令：image list -o -f   能获取模块的ASLR值 以及偏移后的模块的虚拟内存地址<br>公式1：<br>偏移后模块基地址 = 偏移前模块基地址 + ASLR偏移<br>偏移后符号基地址 = 偏移前符号基地址 + 符号所在模块ASLR偏移<br>偏移后指令基地址 = 偏移前指令基地址 + 指令所在模块ASLR偏移 </p>
+<p>方法2 lldb<br>1、LLDB连接到程序<br>2、找到需要下断点的类，在LLDB命令行输入po [类名 _shortMethodDescription]</p>
+<h1 id="创建tweak"><a href="#创建tweak" class="headerlink" title="创建tweak"></a>创建tweak</h1><p>//创建命令行：<br>/Users/apple/theos/bin/nic.pl<br>DNJCountForMobileNotes<br>com.daniujia.dnjcountformobilenotes<br>ls -l<br>total 32<br>-rw-r–r–  1 apple  staff   175 11 22 19:23 Makefile<br>-rw-r–r–  1 apple  staff    57 11 22 19:23 RETest.plist<br>-rw-r–r–  1 apple  staff  1045 11 22 19:23 Tweak.xm<br>-rw-r–r–  1 apple  staff   210 11 22 19:23 control<br>export THEOS=/Users/apple/theos<br>ln -s $THEOS theos &amp;&amp; mkdir .theos &amp;&amp; mkdir .theos/obj &amp;&amp; ln -s ./.theos/obj obj<br>ls -s<br>正常显示 total 48</p>
+<p>//安装<br>make package install</p>
+<p>//清理<br>make clean<br>rm -rf .theos<br>rm -rf theos<br>rm -rf obj<br>rm -rf packages<br>ln -s $THEOS theos &amp;&amp; mkdir .theos &amp;&amp; mkdir .theos/obj &amp;&amp; ln -s ./.theos/obj obj</p>
+<p>//修改 Makefile文件 通过USB转接安装<br>THEOS_DEVICE_IP = 127.0.0.1<br>export THEOS_DEVICE_PORT = 2222<br>ARCHS = arm64<br>TARGET = iphone:latest:8.0<br>include /Users/apple/theos/makefiles/common.mk</p>
+<h1 id="实例1"><a href="#实例1" class="headerlink" title="实例1"></a>实例1</h1><p>ICNoteEditorViewController note对象<br>ICNote模型 noteAsPlainText方法<br>ICNoteEditorViewController<br>textViewDidChange  通过po $X2拿到ICTextView: 0x140289e00 模型<br>通过ICTextView 拿到text 属性<br>即可</p>
+<p>[  0] 0x00000000000f0000 /Applications/MobileNotes.app/MobileNotes(0x00000001000f0000)<br>ASLR 偏移值 0xf0000<br>IDA : 偏移前基址：0x100036948<br>真实内存地址：0x1000126948<br>br s -a 0x100126948 </p>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -394,7 +538,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -402,6 +546,15 @@
 
             
 
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
             
 
           </nav>
